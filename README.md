@@ -1,4 +1,4 @@
-# Ansible role minikube
+# Ansible role **minikube**
 
 Configure minikube cluster
 
@@ -6,11 +6,11 @@ Configure minikube cluster
 
 * Ansible >= 2.9 (Earlier versions may work, but I haven't tested)
 * Python 3 installed
-* This is tested only in Ubuntu, but should work in linux based systems
+* This is tested only in Ubuntu, but should work in other Linux based systems
 
 ## Role Variables
 
-All variables in [default/main.yml](defaults/main.yml) can be overrided
+All variables in [default/main.yml](defaults/main.yml) can be overridden
 
 | Name           | Default Value | Description                        |
 | -------------- | ------------- | -----------------------------------|
@@ -19,8 +19,6 @@ All variables in [default/main.yml](defaults/main.yml) can be overrided
 |`kubectl_version`| latest | kubectl version to install|
 
 ## Dependencies
-
-Nil
 
 ## Example Playbook
 
@@ -33,7 +31,7 @@ git submodule add -b main https://github.com/slashpai/ansible-minikube.git roles
 ```yaml
 - hosts: all
   roles:
-    -minikube
+    - minikube
 ```
 
 Example [playbook](https://github.com/slashpai/ansible_playbooks/tree/main/minikube)
@@ -45,8 +43,6 @@ git submodule update --remote
 ```
 
 ## Contributing
-
-**TODO:** To be updated
 
 ## License
 
