@@ -2,10 +2,10 @@
 - name: Check status of docker service
   service_facts:
 
-- name: Fail docker service not running
+- name: Stop execution if docker service not running
   fail:
     msg: >
-      minikube driver selected as docker but docker service  is not running
+      minikube driver selected as docker but docker service is not running
   when:
     - minikube_driver == "docker" and ansible_facts.services["docker.service"].state == "stopped"
 
