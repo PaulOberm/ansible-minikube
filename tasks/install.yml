@@ -25,6 +25,15 @@
   when: minikube_driver == "docker"
 
 - block:
+    - name: Download minikube sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64.sha256"
+        dest: "/tmp/minikube
+        force: true
+        validate_certs: true
+        mode: '0664'
+
     - name: Download minikube binary to local folder
       become: false
       get_url:
