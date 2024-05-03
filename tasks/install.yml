@@ -87,4 +87,4 @@
 
     - name: Start minikube cluster
       command: "{{ _minikube_install_dir }}/minikube start --driver={{minikube_driver}}"
-      become: minikube
+      become: false
