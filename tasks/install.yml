@@ -45,7 +45,7 @@
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
         dest: "/tmp/minikube"
-        checksum: 'sha256:{{ minikube_sha256.content | b64decode | trim }}'
+        checksum: 'sha256:{{ minikube_sha256 | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
