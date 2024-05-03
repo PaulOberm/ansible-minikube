@@ -37,7 +37,7 @@
     - name: Read the contents of the hash file
       ansible.builtin.file:
         path: /tmp/minikube.sha256
-        state: present
+        state: file
       register: content_sha256
 
     - name: Download minikube binary to local folder
