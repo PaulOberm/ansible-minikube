@@ -29,14 +29,14 @@
       become: false
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64.sha256"
-        dest: "/tmp/minikube/minikube-linux-amd64.sha256"
+        dest: "/tmp/minikube/minikube.sha256"
         force: true
         validate_certs: true
         mode: '0664'
 
     - name: Read the contents of the hash file
       ansible.builtin.file:
-        path: /tmp/minikube/minikube-linux-amd64.sha256
+        path: /tmp/minikube.sha256
         state: present
       register: content_sha256
 
