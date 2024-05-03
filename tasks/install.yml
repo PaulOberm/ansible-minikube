@@ -29,7 +29,7 @@
       become: false
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64.sha256"
-        dest: "/tmp/minikube/minikube.sha256"
+        dest: "/tmp/minikube.sha256"
         force: true
         validate_certs: true
         mode: '0664'
