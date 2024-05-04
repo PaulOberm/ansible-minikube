@@ -34,7 +34,7 @@
         validate_certs: true
         mode: '0664'
 
-    - name: Read the contents of the hash file
+    - name: Read the contents of minikube hash file
       ansible.builtin.slurp:
         src: /tmp/minikube.sha256
       register: minikube_sha256
@@ -63,11 +63,37 @@
       when: not ansible_check_mode
 
 - block:
+    - name: Download kubectl latest sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/{{_latest}}/bin/linux/amd64/kubectl.sha256"
+        dest: "/tmp/kubectl.sha256"
+        force: true
+        validate_certs: true
+        mode: '0664'
+      when: kubectl_install and kubectl_version == "latest"
+
+    - name: Download kubectl version sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/v{{kubectl_version}}/bin/linux/amd64/kubectl.sha256"
+        dest: "/tmp/kubectl.sha256"
+        force: true
+        validate_certs: true
+        mode: '0664'
+      when: kubectl_install and kubectl_version != "latest"
+
+    - name: Read the contents of kubectl hash file
+      ansible.builtin.slurp:
+        src: /tmp/kubectl.sha256
+      register: kubectl_sha256
+
     - name: Download kubectl latest binary to local folder
       become: false
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/{{_latest}}/bin/linux/amd64/kubectl"
         dest: "/tmp/kubectl"
+        checksum: 'sha256:{{ kubectl_sha256.content | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
@@ -82,6 +108,7 @@
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/v{{kubectl_version}}/bin/linux/amd64/kubectl"
         dest: "/tmp/kubectl"
+        checksum: 'sha256:{{ kubectl_sha256.content | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
