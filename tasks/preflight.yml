@@ -1,9 +1,9 @@
 ---
 - name: Check status of docker service
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Stop execution if docker service not running
-  fail:
+  ansible.builtin.fail:
     msg: >
       minikube driver selected as docker but docker service is not running
   when:
@@ -11,9 +11,10 @@
 
 - block:
   - name: Get latest version number from github
-    set_fact:
+    ansible.builtin.set_fact:
        _latest: "{{ lookup('url', 'https://storage.googleapis.com/kubernetes-release/release/stable.txt') | string }}"
     run_once: true
-  - debug:
+  - name: Show latest version number
+    ansible.builtin.debug:
       var: _latest
   delegate_to: localhost

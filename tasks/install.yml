@@ -1,13 +1,13 @@
 ---
 - name: Create the minikube group
-  group:
+  ansible.builtin.group:
     name: "{{ _minikube_system_group }}"
     state: present
     system: true
   when: _minikube_system_group != "root"
 
 - name: Create the minikube user
-  user:
+  ansible.builtin.user:
     name: "{{ _minikube_system_user }}"
     groups: "{{ _minikube_system_group }}"
     append: true
@@ -18,18 +18,33 @@
   when: _minikube_system_user != "root"
 
 - name: Add minikube user to docker user group
-  user:
+  ansible.builtin.user:
     name: "{{ _minikube_system_user }}"
     groups: "docker"
     append: yes
   when: minikube_driver == "docker"
 
 - block:
+    - name: Download minikube sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64.sha256"
+        dest: "/tmp/minikube.sha256"
+        force: true
+        validate_certs: true
+        mode: '0664'
+
+    - name: Read the contents of minikube hash file
+      ansible.builtin.slurp:
+        src: /tmp/minikube.sha256
+      register: minikube_sha256
+
     - name: Download minikube binary to local folder
       become: false
-      get_url:
+      ansible.builtin.get_url:
         url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
         dest: "/tmp/minikube"
+        checksum: 'sha256:{{ minikube_sha256.content | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
@@ -39,7 +54,7 @@
       check_mode: false
 
     - name: Propagate minikube binaries
-      copy:
+      ansible.builtin.copy:
         src: "/tmp/minikube"
         dest: "{{ _minikube_install_dir }}/minikube"
         mode: 0755
@@ -48,11 +63,37 @@
       when: not ansible_check_mode
 
 - block:
+    - name: Download kubectl latest sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/{{_latest}}/bin/linux/amd64/kubectl.sha256"
+        dest: "/tmp/kubectl.sha256"
+        force: true
+        validate_certs: true
+        mode: '0664'
+      when: kubectl_install and kubectl_version == "latest"
+
+    - name: Download kubectl version sha256
+      become: false
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/v{{kubectl_version}}/bin/linux/amd64/kubectl.sha256"
+        dest: "/tmp/kubectl.sha256"
+        force: true
+        validate_certs: true
+        mode: '0664'
+      when: kubectl_install and kubectl_version != "latest"
+
+    - name: Read the contents of kubectl hash file
+      ansible.builtin.slurp:
+        src: /tmp/kubectl.sha256
+      register: kubectl_sha256
+
     - name: Download kubectl latest binary to local folder
       become: false
-      get_url:
+      ansible.builtin.get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/{{_latest}}/bin/linux/amd64/kubectl"
         dest: "/tmp/kubectl"
+        checksum: 'sha256:{{ kubectl_sha256.content | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
@@ -64,9 +105,10 @@
 
     - name: Download kubectl specified version binary to local folder
       become: false
-      get_url:
+      ansible.builtin.get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/v{{kubectl_version}}/bin/linux/amd64/kubectl"
         dest: "/tmp/kubectl"
+        checksum: 'sha256:{{ kubectl_sha256.content | b64decode | trim }}'
         mode: '0644'
       register: _download_binary
       until: _download_binary is succeeded
@@ -77,7 +119,7 @@
       when: kubectl_install and kubectl_version != "latest"
 
     - name: Propagate kubectl binary
-      copy:
+      ansible.builtin.copy:
         src: "/tmp/kubectl"
         dest: "{{ _kubectl_install_dir }}/kubectl"
         mode: 0755
@@ -86,5 +128,5 @@
       when: kubectl_install
 
     - name: Start minikube cluster
-      command: "{{ _minikube_install_dir }}/minikube start --driver={{minikube_driver}}"
-      become: 'minikube'
+      ansible.builtin.command: "{{ _minikube_install_dir }}/minikube start --driver={{minikube_driver}}"
+      become: false
