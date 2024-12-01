@@ -58,8 +58,8 @@
         src: "/tmp/minikube"
         dest: "{{ _minikube_install_dir }}/minikube"
         mode: 0755
-        owner: root
-        group: root
+        owner: "{{ _minikube_system_user }}"
+        group: "{{ _minikube_system_user }}"
       when: not ansible_check_mode
 
 - block:
@@ -123,8 +123,8 @@
         src: "/tmp/kubectl"
         dest: "{{ _kubectl_install_dir }}/kubectl"
         mode: 0755
-        owner: root
-        group: root
+        owner: "{{ _minikube_system_user }}"
+        group: "{{ _minikube_system_user }}"
       when: kubectl_install
 
     - name: Start minikube cluster
