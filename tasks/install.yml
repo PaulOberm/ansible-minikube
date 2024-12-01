@@ -128,5 +128,5 @@
       when: kubectl_install
 
     - name: Start minikube cluster # TODO: Add variable for path
-      ansible.builtin.command: "{{ _minikube_install_dir }}/minikube start --driver={{minikube_driver}} --mount-string="/var/www/api.monellimankeimontenegro.eu:/var/www/api.monellimankeimontenegro.eu" --mount
+      ansible.builtin.command: "{{ _minikube_install_dir }}/minikube start --driver={{minikube_driver}}
       become: false
